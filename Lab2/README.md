@@ -73,3 +73,115 @@ echo '<center><h1>Welcome to Server: <?php echo $_SERVER["SERVER_ADDR"]; ?></h1>
 ## Documentación Oficial
 
 [Instalar un servidor LAMP en AL2023](https://docs.aws.amazon.com/es_es/linux/al2023/ug/ec2-lamp-amazon-linux-2023.html)
+
+
+## Configurar Base de Datos MariaDB en un EBS para datos.
+
+### 1. Conéctese a la instancia
+
+### 2. Para asegurarse de que todos los paquetes de software están actualizados, realice una actualización rápida del software en la instancia.
+
+```console
+sudo dnf update -y
+```
+
+### 3. Instalar MariaDB
+
+```console
+sudo dnf install mariadb105-server
+```
+
+### 4. Utilizar el comando lsblk para ver los dispositivos de disco disponibles y sus puntos de montaje (si procede) para  determinar el nombre de dispositivo correcto que debe emplear.
+
+```console
+sudo lsblk -f
+```
+
+### 5. Crear un sistema de archivos en el volumen adicional.
+
+```console
+sudo mkfs -t xfs /dev/xvdb
+```
+
+### 6. Comprobar que el volumen tiene un sistema de ficheros xfs.
+
+```console
+sudo lsblk -f
+```
+
+### 7. Editar el fichero /etc/fstab para montar el volumen /dev/xvdb en la carpeta de datos de MariaDB /var/lib/mysql/
+
+```console
+nano /etc/fstab
+```
+
+
+```console
+UUID=aebf131c-6957-451e-8d34-ec978d9581ae /var/lib/mysql xfs  defaults,nofail  0  2
+```
+
+### 8. Reiniciar la instancia
+
+### 9. Asignar propietario de la carpeta /var/lib/mysql
+
+```console
+sudo chown mysql:root mysql
+```
+
+### 10. Iniciar el servicio de MariaDB
+
+```console
+sudo systemctl start mariadb 
+```
+
+### 11. Utilice el comando systemctl para configurar el servicio de MariaDB de forma que se inicie cada vez que arranque el sistema.
+
+```console
+sudo systemctl enable mariadb
+```
+
+### 9. Iniciar sesión en el servidor de base de datos como el usuario root.
+
+```console
+sudo mysql -u root -p
+```
+
+### 10. Cree un usuario y una contraseña para la base de datos MySQL
+
+```console
+CREATE USER 'user'@'%' IDENTIFIED BY 'mypassword';
+```
+
+### 11. Cree una base de datos
+
+```console
+CREATE DATABASE `my-database`;
+```
+
+### 12. Otorgue todos los privilegios de su base de datos al usuario que creó anteriormente.
+
+```console
+GRANT ALL PRIVILEGES ON `my-database`.* TO "user"@"%";
+```
+
+### 13. Salir del cliente de Mariadb
+
+### 14. Editar el fichero de configuración /etc/my.cnf.d/mariadb-server.cnf
+
+```console
+sudo nano /etc/my.cnf.d/mariadb-server.cnf
+```
+
+Descomentar la línea: bind-address=0.0.0.0
+
+### 15. Reiniciar el servicio de MariaDB
+
+```console
+sudo systemctl restart mariadb 
+```
+
+### 16. Configurar el Grupo de Securidad de la instancia para permitir conectar en el puerto 3306 para nuestra IP.
+
+### 17. Conectar a la base de datos desde nuestro equipo utilizando cualquier cliente.
+
+### 18. Lanzar el script [mariadb_dummy_data.sql](mariadb_dummy_data.sql) para crear una tabla de usuarios con datos de prueba.
