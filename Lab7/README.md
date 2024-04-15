@@ -78,3 +78,5 @@ cp -R * /var/www/html/
 ### 3. Crear una base de datos MySQL en RDS
 
 ### 4. Configurar Wordpress desde el navegador web.
+
+### 5. (Opcional) [Habilitar SSL en Apache Web Server](Enable_SSL.md#habilitar-ssl)
